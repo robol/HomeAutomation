@@ -1,0 +1,20 @@
+{% extends "base.html" %}      
+
+{% block content %}
+      <div class="row">
+	<div class="col-md-9">
+	  <h1>List of devices on the network</h1>
+	  <ul>
+	    {% for client in clients %}
+	    <li>
+	      <a href="/client/{{ client.name() }}" class="lead">{{ client.getDescription() }}</a> <br />
+	      Address: {{ client.name() }} <br />	      
+	      <span id="statusBox-{{client.name()}}"></span>
+	    </li>	    
+	    <script> loadShortStatus("{{ client.name() }}");</script>
+	    {% endfor %}
+	  </ul>
+	</div>	
+      </div>
+
+{% endblock %}

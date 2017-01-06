@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-md-9">
+    <h1>{{ client.getDescription() }}</h1>
+    
+    <h2>Available actions</h2>
+      {% for action in client.listActions() %}
+      <button class="btn btn-default" onclick='triggerAction("{{ client.name() }}", "{{ action }}");'>{{ action }}</button>
+      {% endfor %}
+
+    <h2>Current status</h2>
+    <div id="statusBox-{{client.name()}}"></div>
+	  
+  </div>
+
+  <script>loadStatus("{{ client.name() }}");</script>
+</div>
+
+{% endblock %}
