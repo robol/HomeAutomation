@@ -21,7 +21,7 @@ def JSONResponse(obj):
     return Response(json_rep,
                     mimetype = 'application/json')
 
-app = Flask('HomeAutomation', static_url_path = '/static')
+app = Flask(__name__, static_url_path = '/static')
 app.debug = True
 
 @app.route('/')
