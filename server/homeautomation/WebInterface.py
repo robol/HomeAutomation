@@ -22,7 +22,6 @@ def JSONResponse(obj):
                     mimetype = 'application/json')
 
 app = Flask(__name__, static_url_path = '/static')
-app.debug = True
 
 @app.route('/')
 def index():

@@ -47,7 +47,7 @@ class Server:
             Logger.logDebug('Deregistering client: %s' % name)
             self.__client.pop(name)
         else:
-            Logger.logDebug('Cannot find a client that deregistered: %s' % name) 
+            Logger.logDebug('Cannot find a client that deregistered: %s' % name)
 
 class ClientDiscoveryService():
 
