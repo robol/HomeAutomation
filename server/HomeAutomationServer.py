@@ -2,13 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from homeautomation.Server import Server
+from homeautomation import server
 
 if __name__ == "__main__":
-
-    server = Server()
-    server.listen('0.0.0.0', 9999)
-
-    
-
-    
+	server.listen('0.0.0.0', 9999, debug = True)

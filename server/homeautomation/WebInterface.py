@@ -1,7 +1,7 @@
 #
 # -*- coding: utf-8 -*-
 
-from flask import Flask, send_from_directory, Response, render_template
+from flask import Flask, send_from_directory, Response, render_template, request
 import json
 from homeautomation.Client import Client
 
@@ -44,11 +44,17 @@ def static_files():
 def client_list():
     return Response(list(map(lambda x : x.toJSON(), app.home_automation.clients())))
 
-@app.route('/client/<name>/action/<action>')
+@app.route('/client/<name>/action/<action>', methods = [ "GET", "POST" ])
 def client_action(name, action):
+    try:
+        additional_params = json.loads(request.data)
+    except Exception, e:
+        additional_params = None
     client = app.home_automation.getClient(name)
     if client is not None:
-        return JSONResponse(client.doAction(action))
+        return JSONResponse(client.doAction(action, additional_params))
+    else:
+        return errorResponse('client not found')
 
 @app.route('/client/<name>/description')
 def client_description(name):
@@ -62,7 +68,7 @@ def client_description(name):
 def client_status(name):
     client = app.home_automation.getClient(name)
     if client is not None:
-        return JSONResponse(client.status())
+        return JSONResponse({ 'status': client.status() })
     else:
         return errorResponse('client not found')
 

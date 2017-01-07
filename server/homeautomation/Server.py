@@ -16,17 +16,19 @@ class Server:
         # The list of clients is initially empty, and will be popuplated
         # using the schedule and the multicast. 
         self.__clients = {}
+        
+        # Store the Web Interface
+        self.__web_interface = app
+        app.home_automation = self
 
-    def listen(self, address, port):
         self.__discovery_service = ClientDiscoveryService()
         self.__discovery_service.start(
             lambda client : self.registerClient(client),
             lambda client : self.removeClient(client))
 
-        # start the web interface
-        self.__web_interface = app
-        app.home_automation = self
-        self.__web_interface.run(address, port)
+    def listen(self, address, port, debug = False):
+        # Start the web interface
+        self.__web_interface.run(address, port, debug)
 
     def clients(self):
         return self.__clients.values()

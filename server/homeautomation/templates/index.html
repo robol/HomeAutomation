@@ -9,7 +9,7 @@
 	    <li>
 	      <a href="/client/{{ client.name() }}" class="lead">{{ client.getDescription() }}</a> <br />
 	      Address: {{ client.name() }} <br />	      
-	      <span id="statusBox-{{client.name()}}"></span>
+	      Status: <span id="statusBox-{{client.name()}}"></span>
 	    </li>	    
 	    <script> loadShortStatus("{{ client.name() }}");</script>
 	    {% endfor %}

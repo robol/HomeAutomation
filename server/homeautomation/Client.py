@@ -1,4 +1,36 @@
-import json, requests
+import json, requests, simplejson
+
+class Action():
+
+    def __init__(self, name, description, parameters):
+        """An Action that can be performed by a Client"""
+        self.__name = name
+        self.__description = description
+        self.__parameters = parameters
+
+    def parameterType(self, parameter_name):
+        return self.__parameters[parameter_name]
+
+    def parameters(self):
+        return self.__parameters.keys()
+
+    def name(self):
+        return self.__name
+
+    def description(self):
+        return self.__description
+
+class Property():
+
+    def __init__(self, name, description):
+        self.__name = name
+        self.__description = description
+
+    def name(self):
+        return self.__name
+
+    def description(self):
+        return self.__description
 
 class Client():
     """A client of the Automation Server. """
@@ -11,6 +43,8 @@ class Client():
         self.__description = None
         self.__actions     = None
 
+        self.__online = False
+
     def toJSON(self):
         return json.dumps({
             'name': self.__name,
@@ -19,10 +53,28 @@ class Client():
         })
 
     def cacheData(self):
-        status = self.status()        
-        self.__description = status['description']
-        r = requests.get(self.__build_url('list-actions'))
-        self.__actions = json.loads(r.text)
+        self.__description = json.loads(self.__do_get('description'))["description"]
+
+        # Load Actions
+        self.__actions = []
+        for action in json.loads(self.__do_get('list-actions')):
+            description = action["description"]
+            name = action["name"]
+            parameters = {}
+            if "parameters" in action:
+                for p in action["parameters"]:
+                    parts = p.split(":")
+                    pname = parts[0]
+                    if len(name) > 1:
+                        ptype = parts[1]
+                    else:
+                        ptype = "string"
+                    parameters[pname] = ptype
+            self.__actions.append(Action(name, description, parameters))
+            
+        self.__properties = []
+        for property in json.loads(self.__do_get('list-properties')):
+            self.__properties.append(Property(property["name"], property["description"]))
 
     def name(self):
         return self.__name
@@ -41,23 +93,44 @@ class Client():
     def __build_url(self, page):
         return "http://%s:%s/%s" % (self.__address, self.__port, page)
 
+    def __do_get(self, page):
+        try:
+            r = requests.get(self.__build_url(page))
+            self.__online = True
+            return r.text
+        except requests.exceptions.Timeout:
+            self.__online = False
+
+    def __do_post(self, page, params):
+        try:
+            r = requests.post(self.__build_url(page), params)
+            self.__online = True
+            return r.text
+        except requests.exceptions.Timeout:
+            self.__online = False
+
     def status(self):
-        r = requests.get(self.__build_url('status'))
-        return json.loads(r.text)
+        status = json.loads(self.__do_get('status'))
+        return status["status"]
 
     def ping(self):
-        status = self.status()
-        return status["status"] == "online"
+        self.status()
+        return self.__online
 
-    def doAction(self, data):
-        r = requests.post(self.__build_url('action'),
-                          json.dumps({ 'action': data }))
-        return r.status_code == 200
+    def isOnline(self):
+        return self.__online
+
+    def doAction(self, action, params = None):
+        if params is not None:
+            params['action'] = action
+        else:
+            params = { 'action': action }
+        return json.loads(self.__do_post('action',
+                                         json.dumps(params)))
 
     def getDescription(self):
         if self.__description is None:
-            status = self.status()
-            self.__description = status["description"]
+            self.cacheData()
         return self.__description
 
     def listActions(self):
@@ -65,5 +138,11 @@ class Client():
             self.cacheData()
 
         return self.__actions
+
+    def listProperties(self):
+        if self.__properties is None:
+            self.cacheData()
+
+        return self.__properties
                                     
     

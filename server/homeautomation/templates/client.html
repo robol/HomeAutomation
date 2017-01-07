@@ -7,8 +7,19 @@
     <h1>{{ client.getDescription() }}</h1>
     
     <h2>Available actions</h2>
-      {% for action in client.listActions() %}
-      <button class="btn btn-default" onclick='triggerAction("{{ client.name() }}", "{{ action }}");'>{{ action }}</button>
+    {% for action in client.listActions() %}
+    <p>
+      {{ action.description() }} </p>
+    <p>
+	  {% for parameter in action.parameters() %}
+	    <input placeholder="{{ parameter }}" id="parameter-{{ action.name() }}-{{parameter}}-{{action.parameterType(parameter)}}"/> &nbsp; 
+	    {% endfor %}
+	    <button class="btn btn-default" onclick='triggerAction("{{ client.name() }}", "{{ action.name() }}");'>
+	      {{ action.name() }}
+	    </button>
+
+	</p>
+
       {% endfor %}
 
     <h2>Current status</h2>
