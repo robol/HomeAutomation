@@ -48,7 +48,7 @@ def client_list():
 def client_action(name, action):
     try:
         additional_params = json.loads(request.data)
-    except Exception, e:
+    except:
         additional_params = None
     client = app.home_automation.getClient(name)
     if client is not None:
